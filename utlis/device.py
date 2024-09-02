@@ -4,6 +4,7 @@ from sys import exit
 import subprocess
 import frida
 import json
+import time
 
 
 class Device:
@@ -40,7 +41,16 @@ def select_device(device_id, host):
     """
 
     if device_id is None:
-        devices = list(filter(lambda d: not d.name.lower().startswith("local"), frida.enumerate_devices()))
+        # devices = list(filter(lambda d: not d.name.lower().startswith("local"), frida.enumerate_devices()))
+        # print(frida.enumerate_devices())
+        for i in range(10):
+            devices = list(filter(lambda d: d.type.lower().startswith("usb"), frida.enumerate_devices()))
+            if len(devices) > 0:
+                break
+            if (i == 9):
+                print_msg("未检测到设备，请检查设备连接")
+                exit()
+            time.sleep(1)
         devices_num = len(devices)
         print_msg("读取到 {num} 个设备：".format(num=devices_num))
         devices_data = []
