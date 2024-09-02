@@ -90,13 +90,14 @@ def frida_hook(device_info, app_name, use_module,
                 action = data['action']
                 arg = data['arg']
                 messages = data['messages']
+                returnValue = data['returnValue']
                 stacks = data['stacks']
                 subject_type = tps.is_third_party(stacks)
 
                 if is_show:
                     print("------------------------------start---------------------------------")
-                    print("[*] {0}，APP行为：{1}、行为主体：{2}、行为描述：{3}、传入参数：{4}".format(
-                        alert_time, action, subject_type, messages, arg.replace('\r\n', '，')))
+                    print("[*] {0}，APP行为：{1}、行为主体：{2}、行为描述：{3}、传入参数：{4}、返回值：{5}".format(
+                        alert_time, action, subject_type, messages, arg.replace('\r\n', '，'), returnValue))
                     print("[*] 调用堆栈：")
                     print(stacks)
                     print("-------------------------------end----------------------------------")
@@ -108,6 +109,7 @@ def frida_hook(device_info, app_name, use_module,
                         'action': action,
                         'messages': messages,
                         'arg': arg,
+                        'returnValue': returnValue,
                         'stacks': stacks,
                         'subject_type': subject_type,
                         'privacy_policy_status': "同意隐私政策" + privacy_policy_status.value,

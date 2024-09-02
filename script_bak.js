@@ -37,7 +37,7 @@ function get_format_time() {
 }
 
 //告警发送
-function alertSend(action, messages, arg) {
+function alertSend(action, messages, arg, returnValue) {
     var _time = get_format_time();
     send({
         'type': 'notice',
@@ -45,6 +45,7 @@ function alertSend(action, messages, arg) {
         'action': action,
         'messages': messages,
         'arg': arg,
+        'returnValue': returnValue,
         'stacks': getStackTrace()
     });
 }
@@ -80,7 +81,8 @@ function hookMethod(targetClass, targetMethod, targetArgs, action, messages) {
                 }
                 if (arg.length == 0) arg = '无参数';
                 else arg = arg.slice(0, arg.length - 1);
-                alertSend(action, messages, arg);
+                rv = JSON.stringify(temp);
+                alertSend(action, messages, arg, rv);
                 return temp;
             }
         }
@@ -106,7 +108,8 @@ function hookMethod(targetClass, targetMethod, targetArgs, action, messages) {
                 }
                 if (arg.length == 0) arg = '无参数';
                 else arg = arg.slice(0, arg.length - 1);
-                alertSend(action, messages, arg);
+                rv = JSON.stringify(temp);
+                alertSend(action, messages, arg, rv);
                 return temp;
             }
         }
@@ -160,7 +163,8 @@ function hookApplicationPackageManagerExceptSelf(targetMethod, action) {
                 if (arg.length == 0) arg = '无参数';
                 else arg = arg.slice(0, arg.length - 1);
                 if (string_to_recv) {
-                    alertSend(action, targetMethod + '获取的数据为：' + temp, arg);
+                    rv = JSON.stringify(temp);
+                    alertSend(action, targetMethod + '获取的数据为：' + temp, arg, rv);
                 }
                 return temp;
             }
@@ -208,7 +212,7 @@ function getPhoneState() {
         {'methodName': 'getCellLocation', 'action': action, 'messages': '获取电话当前位置信息'},
         {'methodName': 'getAllCellInfo', 'action': action, 'messages': '获取电话当前位置信息'},
         {'methodName': 'requestCellInfoUpdate', 'action': action, 'messages': '获取基站信息'},
-        {'methodName': 'getServiceState', 'action': action, 'messages': '获取sim卡是否可用'},
+        // {'methodName': 'getServiceState', 'action': action, 'messages': '获取sim卡是否可用'},
     ]);
 
     // 电信卡cid lac
@@ -285,7 +289,7 @@ function getSystemData() {
         {'methodName': 'getAAID', 'action': action, 'messages': '读取三星手机AAID'},
     ]);
 
-    //获取content敏感信息
+    // 获取content敏感信息
     try {
         // 通讯录内容
         var ContactsContract = Java.use('android.provider.ContactsContract');
@@ -321,13 +325,17 @@ function getSystemData() {
             ContentResolver.query.overloads[i].implementation = function () {
                 var temp = this.query.apply(this, arguments);
                 if (arguments[0].toString().indexOf(contact_authority) != -1) {
-                    alertSend(action, '获取手机通信录内容', '');
+                    rv = JSON.stringify(temp);
+                    alertSend(action, '获取手机通信录内容', '', rv);
                 } else if (arguments[0].toString().indexOf(calendar_authority) != -1) {
-                    alertSend(action, '获取日历内容', '');
+                    rv = JSON.stringify(temp);
+                    alertSend(action, '获取日历内容', '', rv);
                 } else if (arguments[0].toString().indexOf(browser_authority) != -1) {
-                    alertSend(action, '获取浏览器内容', '');
+                    rv = JSON.stringify(temp);
+                    alertSend(action, '获取浏览器内容', '', rv);
                 } else if (arguments[0].toString().indexOf(media_authority) != -1) {
-                    alertSend(action, '获取相册内容', '');
+                    rv = JSON.stringify(temp);
+                    alertSend(action, '获取相册内容', '', rv);
                 }
                 return temp;
             }
@@ -484,7 +492,8 @@ function getNetwork() {
             _ip[2] = (temp << 16) >>> 24;
             _ip[3] = (temp << 24) >>> 24;
             var _str = String(_ip[3]) + "." + String(_ip[2]) + "." + String(_ip[1]) + "." + String(_ip[0]);
-            alertSend(action, '获取IP地址：' + _str, '');
+            rv = JSON.stringify(temp);
+            alertSend(action, '获取IP地址：' + _str, '', rv);
             return temp;
         }
     } catch (e) {
@@ -543,7 +552,6 @@ function getSensor() {
 
 function customHook() {
     var action = '用户自定义hook';
-
     //自定义hook函数，可自行添加。格式如下：
     // hook('com.zhengjim.myapplication.HookTest', [
     //     {'methodName': 'getPassword', 'action': action, 'messages': '获取zhengjim密码'},
@@ -553,17 +561,17 @@ function customHook() {
 
 function useModule(moduleList) {
     var _module = {
-        'permission': [checkRequestPermission],
+        // 'permission': [checkRequestPermission],
         'phone': [getPhoneState],
         'system': [getSystemData],
-        'app': [getPackageManager],
-        'location': [getGSP],
+        // 'app': [getPackageManager],
+        // 'location': [getGSP],
         'network': [getNetwork],
-        'camera': [getCamera],
+        // 'camera': [getCamera],
         'bluetooth': [getBluetooth],
-        'file': [getFileMessage],
-        'media': [getMedia],
-        'sensor': [getSensor],
+        // 'file': [getFileMessage],
+        // 'media': [getMedia],
+        // 'sensor': [getSensor],
         'custom': [customHook]
     };
     var _m = Object.keys(_module);

@@ -55,7 +55,9 @@ def write_xlsx(data, file_name):
     worksheet.col(4).width = 20 * 400
     worksheet.write(0, 5, '传入参数', title_style)
     worksheet.col(5).width = 20 * 400
-    worksheet.write(0, 6, '调用堆栈', title_style)
+    worksheet.write(0, 6, '返回值', title_style)
+    worksheet.col(5).width = 20 * 400
+    worksheet.write(0, 7, '调用堆栈', title_style)
     worksheet.col(6).width = 20 * 1200
 
     content_style = xlwt.XFStyle()
@@ -72,7 +74,8 @@ def write_xlsx(data, file_name):
         worksheet.write(index_row, 3, ed['action'], content_style)
         worksheet.write(index_row, 4, ed['messages'], content_style)
         worksheet.write(index_row, 5, ed['arg'], content_style)
-        worksheet.write(index_row, 6, ed['stacks'], content_style)
+        worksheet.write(index_row, 6, ed['returnValue'], content_style)
+        worksheet.write(index_row, 7, ed['stacks'], content_style)
     workbook.save(file_name)
 
 
