@@ -39,6 +39,7 @@ function get_format_time() {
 //告警发送
 function alertSend(action, messages, arg, returnValue) {
     var _time = get_format_time();
+    if (returnValue == undefined) returnValue = '无返回值';
     send({
         'type': 'notice',
         'time': _time,
@@ -552,6 +553,16 @@ function getSensor() {
 
 function customHook() {
     var action = '用户自定义hook';
+    hook('android.webkit.WebView', [
+        {'methodName': 'loadUrl', 'action': action, 'messages': '加载url'}
+    ]);
+    hook('ndroid.content.Context', [
+        {'methodName': 'startActivity', 'action': action, 'messages': '启动activity'},
+        {'methodName': 'startActivityForResult', 'action': action, 'messages': '启动activityForResult'},
+        {'methodName': 'sendBroadcast', 'action': action, 'messages': '发送广播'},
+        {'methodName': 'sendOrderedBroadcast', 'action': action, 'messages': '发送有序广播'},
+        {'methodName': 'startService', 'action': action, 'messages': '启动服务'},
+    ]);
     // hook('com.amap.bundle.utils.encrypt.MD5Util', [
     //     // {'methodName': 'getStringMD5', 'action': action, 'messages': '出现hash算法，可能用于加密'},
     // ]);
@@ -568,13 +579,13 @@ function customHook() {
 function useModule(moduleList) {
     var _module = {
         // 'permission': [checkRequestPermission],
-        'phone': [getPhoneState],
-        'system': [getSystemData],
+        // 'phone': [getPhoneState],
+        // 'system': [getSystemData],
         // 'app': [getPackageManager],
         // 'location': [getGSP],
-        'network': [getNetwork],
+        // 'network': [getNetwork],
         // 'camera': [getCamera],
-        'bluetooth': [getBluetooth],
+        // 'bluetooth': [getBluetooth],
         // 'file': [getFileMessage],
         // 'media': [getMedia],
         // 'sensor': [getSensor],
