@@ -4,6 +4,7 @@ __pycache__/
 .DS_Store
 screen.png
 log/*
+script.js
 
 node_modules
 build
