@@ -1,5 +1,7 @@
 // 对象输出模式: true为仅输出JSON.stringify(obj, null, 4); false为递归至多三层输出参数值;
 var simpleOnly = false;
+// 递归输出对象的最大深度
+var maxDepth = 3;
 // 绕过TracerPid检测
 var ByPassTracerPid = function () {
     var fgetsPtr = Module.findExportByName('libc.so', 'fgets');
@@ -600,7 +602,13 @@ if (!Array.isArray) {
 function getAllFields(obj, depth) {
     var result = {};
     if (simpleOnly) return JSON.stringify(obj, null, 4);
-    if (depth === 3) return JSON.stringify(obj, null, 4);
+    if (depth === maxDepth) {
+        try {
+            return JSON.stringify(obj.toString(), null, 4);
+        } catch (e) {
+            return JSON.stringify(obj, null, 4);
+        }
+    }
     try {
         var objClass = obj.getClass();
         // 处理基本类型
