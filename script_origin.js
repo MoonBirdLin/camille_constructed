@@ -1,3 +1,5 @@
+// 对象输出模式: true为仅输出JSON.stringify(obj, null, 4); false为递归至多三层输出参数值;
+var simpleOnly = false;
 // 绕过TracerPid检测
 var ByPassTracerPid = function () {
     var fgetsPtr = Module.findExportByName('libc.so', 'fgets');
@@ -548,6 +550,7 @@ Java.perform(function () {
     // console.log("---");
 });
 
+
 // 获取调用链
 function getStackTrace() {
     var Exception = Java.use('java.lang.Exception');
@@ -593,6 +596,85 @@ if (!Array.isArray) {
     };
 }
 
+// 递归获取对象的所有字段
+function getAllFields(obj, depth) {
+    var result = {};
+    if (simpleOnly) return JSON.stringify(obj, null, 4);
+    if (depth === 3) return JSON.stringify(obj, null, 4);
+    try {
+        var objClass = obj.getClass();
+        // 处理基本类型
+        {
+            if (obj.getClass().getName() === "java.lang.String") {
+                return obj.toString();
+            } else if (obj.getClass().getName() === "java.lang.Integer") {
+                return obj.intValue();
+            } else if (obj.getClass().getName() === "java.lang.Boolean") {
+                return obj.booleanValue();
+            } else if (obj.getClass().getName() === "java.lang.Long") {
+                return obj.longValue();
+            } else if (obj.getClass().getName() === "java.lang.Double") {
+                return obj.doubleValue();
+            } else if (obj.getClass().getName() === "java.lang.Float") {
+                return obj.floatValue();
+            } else if (obj.getClass().getName() === "java.lang.Short") {
+                return obj.shortValue();
+            } else if (obj.getClass().getName() === "java.lang.Byte") {
+                return obj.byteValue();
+            } else if (obj.getClass().getName() === "java.lang.Character") {
+                return obj.charValue();
+            } else if (obj.getClass().getName() === "java.lang.Void") {
+                return "void";
+            } else if (obj.getClass().getName() === "java.lang.Object") {
+                return JSON.stringify(obj, null, 4);
+            } else if (obj.getClass().getName() === "java.lang.Class") {
+                return obj.getName();
+            } else if (obj.getClass().getName() === "java.lang.Throwable") {
+                return obj.toString();
+            } else if (obj.getClass().getName() === "java.lang.Enum") {
+                return obj.toString();
+            } else if (obj.getClass().getName().startsWith("android.")) {
+                return JSON.stringify(obj.toString(), null, 4);
+            } else if (obj.getClass().getName().startsWith("java.")) {
+                return JSON.stringify(obj.toString(), null, 4);
+            } else if (obj.getClass().getName().startsWith("javax.")) {
+                return JSON.stringify(obj.toString(), null, 4);
+            } else if (obj.getClass().getName().startsWith("androidx.")) {
+                return JSON.stringify(obj.toString(), null, 4);
+            } else if (obj.getClass().getName().startsWith("kotlin.")) {
+                return JSON.stringify(obj.toString(), null, 4);
+            } else if (obj.getClass().getName().startsWith("kotlinx.")) {
+                return JSON.stringify(obj.toString(), null, 4);
+            } else if (obj.getClass().getName().startsWith("sun.")) {
+                return JSON.stringify(obj.toString(), null, 4);
+            } else if (obj.getClass().getName().startsWith("org.apache.*")) {
+                return JSON.stringify(obj.toString(), null, 4);
+            } else if (obj.getClass().getName().startsWith("org.eclipse.*")) {
+                return JSON.stringify(obj.toString(), null, 4);
+            } else if (obj.getClass().getName().startsWith("jdk.*")) {
+                return JSON.stringify(obj.toString(), null, 4);
+            }
+        }
+        
+        var fields = objClass.getDeclaredFields();
+        fields.forEach(function(field) {
+            try {
+                field.setAccessible(true);
+                var value = field.get(obj);
+                result[field.getName()] = getAllFields(value, depth+1);
+                console.log(value);
+                // result[field.getName()] = JSON.stringify(value, null, 4);
+            } catch (e) {
+                result[field.getName()] = "Cannot access";
+            }
+        });
+    } catch (e) {
+        result = JSON.stringify(obj, null, 4);
+    }
+    
+    return JSON.stringify(result, null, 4);
+}
+
 // hook方法
 function hookMethod(targetClass, targetMethod, targetArgs, action, messages) {
     try {
@@ -613,11 +695,11 @@ function hookMethod(targetClass, targetMethod, targetArgs, action, messages) {
                 }
                 var arg = '';
                 for (var j = 0; j < arguments.length; j++) {
-                    arg += '参数' + j + '：' + JSON.stringify(arguments[j]) + '\r\n';
+                    arg += '参数' + j + '：' + JSON.stringify(arguments[j], null, 4) + '\r\n';
                 }
                 if (arg.length == 0) arg = '无参数';
                 else arg = arg.slice(0, arg.length - 1);
-                var rv = JSON.stringify(temp);
+                var rv = JSON.stringify(temp, null, 4);
                 alertSend(action, messages, arg, rv);
                 return temp;
             }
@@ -640,11 +722,23 @@ function hookMethod(targetClass, targetMethod, targetArgs, action, messages) {
                 }
                 var arg = '';
                 for (var j = 0; j < arguments.length; j++) {
-                    arg += '参数' + j + '：' + JSON.stringify(arguments[j]) + '\r\n';
+                    // arg += '参数' + j + '：' + JSON.stringify(arguments[j], null, 4) + '\r\n';
+                    if (arg !== null && arg !== undefined) {
+                        // 如果参数是对象，递归打印对象的所有字段
+                        arg += '参数' + j + '：' + getAllFields(arguments[j], 0) + '\r\n';
+                    } else {
+                        arg += '参数' + j + '：' + JSON.stringify(arguments[j], null, 4) + '\r\n';
+                    }
                 }
                 if (arg.length == 0) arg = '无参数';
                 else arg = arg.slice(0, arg.length - 1);
-                var rv = JSON.stringify(temp);
+                // var rv = JSON.stringify(temp, null, 4);
+                if (temp !== null && temp !== undefined) {
+                    // 如果返回值是对象，递归打印对象的所有字段
+                    var rv = getAllFields(temp, 0);
+                } else {
+                    var rv = JSON.stringify(temp, null, 4);
+                }
                 alertSend(action, messages, arg, rv);
                 return temp;
             }
@@ -694,12 +788,12 @@ function hookApplicationPackageManagerExceptSelf(targetMethod, action) {
                             string_to_recv = received_json_object.my_data;
                         }).wait();
                     }
-                    arg += '参数' + j + '：' + JSON.stringify(arguments[j]) + '\r\n';
+                    arg += '参数' + j + '：' + JSON.stringify(arguments[j], null, 4) + '\r\n';
                 }
                 if (arg.length == 0) arg = '无参数';
                 else arg = arg.slice(0, arg.length - 1);
                 if (string_to_recv) {
-                    var rv = JSON.stringify(temp);
+                    var rv = JSON.stringify(temp, null, 4);
                     alertSend(action, targetMethod + '获取的数据为：' + temp, arg, rv);
                 }
                 return temp;
@@ -861,16 +955,16 @@ function getSystemData() {
     //         ContentResolver.query.overloads[i].implementation = function () {
     //             var temp = this.query.apply(this, arguments);
     //             if (arguments[0].toString().indexOf(contact_authority) != -1) {
-    //                 var rv = JSON.stringify(temp);
+    //                 var rv = JSON.stringify(temp, null, 4);
     //                 alertSend(action, '获取手机通信录内容', '', rv);
     //             } else if (arguments[0].toString().indexOf(calendar_authority) != -1) {
-    //                 var rv = JSON.stringify(temp);
+    //                 var rv = JSON.stringify(temp, null, 4);
     //                 alertSend(action, '获取日历内容', '', rv);
     //             } else if (arguments[0].toString().indexOf(browser_authority) != -1) {
-    //                 var rv = JSON.stringify(temp);
+    //                 var rv = JSON.stringify(temp, null, 4);
     //                 alertSend(action, '获取浏览器内容', '', rv);
     //             } else if (arguments[0].toString().indexOf(media_authority) != -1) {
-    //                 var rv = JSON.stringify(temp);
+    //                 var rv = JSON.stringify(temp, null, 4);
     //                 alertSend(action, '获取相册内容', '', rv);
     //             }
     //             return temp;
@@ -1028,7 +1122,7 @@ function getNetwork() {
             _ip[2] = (temp << 16) >>> 24;
             _ip[3] = (temp << 24) >>> 24;
             var _str = String(_ip[3]) + "." + String(_ip[2]) + "." + String(_ip[1]) + "." + String(_ip[0]);
-            var rv = JSON.stringify(temp);
+            var rv = JSON.stringify(temp, null, 4);
             alertSend(action, '获取IP地址：' + _str, '', rv);
             return temp;
         }

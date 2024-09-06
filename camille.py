@@ -104,15 +104,17 @@ def frida_hook(device_info, app_name, use_module,
                 if execl_file:
                     global privacy_policy_status
                     global execl_data
+                    truncate_string = lambda s: s[:3200] if len(s) > 3200 else s
                     execl_data.append({
-                        'alert_time': alert_time,
-                        'action': action,
-                        'messages': messages,
-                        'arg': arg,
-                        'returnValue': returnValue,
-                        'stacks': stacks,
-                        'subject_type': subject_type,
-                        'privacy_policy_status': "同意隐私政策" + privacy_policy_status.value,
+                        #// 仅可保留前32767个字符
+                        'alert_time': truncate_string(alert_time),
+                        'action': truncate_string(action),
+                        'messages': truncate_string(messages),
+                        'arg': truncate_string(arg),
+                        'returnValue': truncate_string(returnValue),
+                        'stacks': truncate_string(stacks),
+                        'subject_type': truncate_string(subject_type),
+                        'privacy_policy_status': "同意隐私政策" + truncate_string(privacy_policy_status.value),
                     })
             if data['type'] == "app_name":
                 get_app_name = data['data']
