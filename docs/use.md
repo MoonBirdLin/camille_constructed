@@ -1,19 +1,21 @@
 # 目录
 
-* [使用](#使用)
-* [输出堆栈信息文件](#输出堆栈信息文件)
-* [延迟hook](#延迟hook)
-* [使用attach hook](#使用attach)
-* [选择Hook模块](#选择Hook模块)
-* [指定设备](#指定设备)
-* [自定义hook接口](#自定义hook接口)
-* [是否同意隐私政策](#是否同意隐私政策)
-* [指定Frida-sever](#指定Frida-sever)
-* [PyInstaller 打包二进制可执行文件](#PyInstaller打包二进制可执行文件)
+- [目录](#目录)
+- [使用：](#使用)
+- [输出堆栈信息文件](#输出堆栈信息文件)
+- [延迟hook](#延迟hook)
+- [使用attach](#使用attach)
+- [选择Hook模块](#选择hook模块)
+- [指定设备](#指定设备)
+- [自定义对象输出模式](#自定义对象输出模式)
+- [自定义hook接口](#自定义hook接口)
+- [指定Frida-sever](#指定frida-sever)
+- [PyInstaller打包二进制可执行文件](#pyinstaller打包二进制可执行文件)
 
 # 使用：
 
 ```
+cp script_origin.js script.js
 python camille.py com.zhengjim.myapplication
 ```
 
@@ -89,6 +91,12 @@ python camille.py com.zhengjim.myapplication -s emulator-5556
 
 - -s：指定连接设备，可通过 `adb devices` 获取设备 id
 
+# 自定义对象输出模式
+- `script.js`文件里的`simpleOnly`变量即对象输出模式: 
+  - true为仅输出JSON.stringify(obj, null, 4); 
+  - false为递归至多三层输出参数值;
+- `script.js`文件里的`maxDepth`变量即递归输出对象的最大深度
+
 # 自定义hook接口
 
 在`script.js`文件里的`customHook`方法里可自行添加需要hook的接口。
@@ -111,24 +119,6 @@ hook('android.provider.Settings$Secure', [
 
 `-u custom`是只检测自定义接口，如图：
 ![img.png](../images/img5.png)
-
-# 是否同意隐私政策
-
-**手机设置要打开USB模拟按键点击开关**
-
-默认开启， 如不需要改功能加`-npp` 参数关闭（不开启的话就默认是同意隐私合规后）。采用半自动模式，启动后会弹出当前屏幕。
-
-![img.png](../images/img7.png)
-
-同意隐私协议请`鼠标左键`点击对应同意位置如无隐私协议，如不是隐私协议界面继续获取屏幕请按键盘`n`, 退出请按`q`
-
-![img.png](../images/img8.png)
-
-![img.png](../images/img9.png)
-
-查看报告
-
-![img.png](../images/img10.png)
 
 # 指定Frida-sever
 

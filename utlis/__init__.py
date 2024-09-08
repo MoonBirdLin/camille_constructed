@@ -41,23 +41,23 @@ def write_xlsx(data, file_name):
     alignment.vert = xlwt.Alignment.VERT_CENTER
     title_style.alignment = alignment
     # 标题
-    worksheet.write(0, 0, '隐私政策状态', title_style)
+    # worksheet.write(0, 0, '隐私政策状态', title_style)
+    # worksheet.col(0).width = 20 * 300
+    worksheet.write(0, 0, '时间点', title_style)
     worksheet.col(0).width = 20 * 300
-    worksheet.write(0, 1, '时间点', title_style)
+    worksheet.row(0).height_mismatch = True
+    worksheet.row(0).height = 20 * 25
+    worksheet.write(0, 1, '行为主体', title_style)
     worksheet.col(1).width = 20 * 300
-    worksheet.row(1).height_mismatch = True
-    worksheet.row(1).height = 20 * 25
-    worksheet.write(0, 2, '行为主体', title_style)
+    worksheet.write(0, 2, '操作行为', title_style)
     worksheet.col(2).width = 20 * 300
-    worksheet.write(0, 3, '操作行为', title_style)
-    worksheet.col(3).width = 20 * 300
-    worksheet.write(0, 4, '行为描述', title_style)
-    worksheet.col(4).width = 20 * 400
-    worksheet.write(0, 5, '传入参数', title_style)
-    worksheet.col(5).width = 20 * 400
-    worksheet.write(0, 6, '返回值', title_style)
-    worksheet.col(5).width = 20 * 400
-    worksheet.write(0, 7, '调用堆栈', title_style)
+    worksheet.write(0, 3, '行为描述', title_style)
+    worksheet.col(3).width = 20 * 400
+    worksheet.write(0, 4, '传入参数', title_style)
+    worksheet.col(4).width = 20 * 1200
+    worksheet.write(0, 5, '返回值', title_style)
+    worksheet.col(5).width = 20 * 1200
+    worksheet.write(0, 6, '调用堆栈', title_style)
     worksheet.col(6).width = 20 * 1200
 
     content_style = xlwt.XFStyle()
@@ -68,14 +68,14 @@ def write_xlsx(data, file_name):
     content_style.alignment.wrap = 1
     for i, ed in enumerate(data):
         index_row = i + 1
-        worksheet.write(index_row, 0, ed['privacy_policy_status'], content_style)
-        worksheet.write(index_row, 1, ed['alert_time'], content_style)
-        worksheet.write(index_row, 2, ed['subject_type'], content_style)
-        worksheet.write(index_row, 3, ed['action'], content_style)
-        worksheet.write(index_row, 4, ed['messages'], content_style)
-        worksheet.write(index_row, 5, ed['arg'], content_style)
-        worksheet.write(index_row, 6, ed['returnValue'], content_style)
-        worksheet.write(index_row, 7, ed['stacks'], content_style)
+        # worksheet.write(index_row, 0, ed['privacy_policy_status'], content_style)
+        worksheet.write(index_row, 0, ed['alert_time'], content_style)
+        worksheet.write(index_row, 1, ed['subject_type'], content_style)
+        worksheet.write(index_row, 2, ed['action'], content_style)
+        worksheet.write(index_row, 3, ed['messages'], content_style)
+        worksheet.write(index_row, 4, ed['arg'], content_style)
+        worksheet.write(index_row, 5, ed['returnValue'], content_style)
+        worksheet.write(index_row, 6, ed['stacks'], content_style)
     workbook.save(file_name)
 
 

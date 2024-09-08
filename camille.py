@@ -106,7 +106,7 @@ def frida_hook(device_info, app_name, use_module,
                     global execl_data
                     truncate_string = lambda s: s[:3200] if len(s) > 3200 else s
                     execl_data.append({
-                        #// 仅可保留前32767个字符
+                        # 仅可保留前32767个字符
                         'alert_time': truncate_string(alert_time),
                         'action': truncate_string(action),
                         'messages': truncate_string(messages),
@@ -114,7 +114,7 @@ def frida_hook(device_info, app_name, use_module,
                         'returnValue': truncate_string(returnValue),
                         'stacks': truncate_string(stacks),
                         'subject_type': truncate_string(subject_type),
-                        'privacy_policy_status': "同意隐私政策" + truncate_string(privacy_policy_status.value),
+                        # 'privacy_policy_status': "同意隐私政策" + truncate_string(privacy_policy_status.value),
                     })
             if data['type'] == "app_name":
                 get_app_name = data['data']
@@ -283,16 +283,17 @@ if __name__ == '__main__':
         use_module = {"type": "nouse", "data": args.nouse}
 
     frida_device = get_frida_device(args.serial, args.host)
+    # 在本版本的应用中, 主要作用是hook一系列函数, 而非进行隐私合规检测, 因此无需此处隐私政策相关检查
     # attach模式不调用同意隐私协议
-    if args.noprivacypolicy or args.isattach:
-        privacy_policy_status = multiprocessing.Value('u', '后')
-        agree_privacy_process = None
-    else:
-        privacy_policy_status = multiprocessing.Value('u', '前')
-        did = frida_device['did'] if frida_device['did'] else frida_device["device"].id
-        agree_privacy_process = Process(target=agree_privacy, args=(privacy_policy_status, did))
-        agree_privacy_process.daemon = True
-        agree_privacy_process.start()
+    # if args.noprivacypolicy or args.isattach:
+    #     privacy_policy_status = multiprocessing.Value('u', '后')
+    #     agree_privacy_process = None
+    # else:
+    #     privacy_policy_status = multiprocessing.Value('u', '前')
+    #     did = frida_device['did'] if frida_device['did'] else frida_device["device"].id
+    #     agree_privacy_process = Process(target=agree_privacy, args=(privacy_policy_status, did))
+    #     agree_privacy_process.daemon = True
+    #     agree_privacy_process.start()
 
     process = int(args.package) if args.package.isdigit() else args.package
     frida_hook(frida_device, process, use_module,
