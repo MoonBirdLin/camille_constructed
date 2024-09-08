@@ -613,55 +613,52 @@ function getAllFields(obj, depth) {
         var objClass = obj.getClass();
         // 处理基本类型
         {
-            if (obj.getClass().getName() === "java.lang.String") {
-                return obj.toString();
-            } else if (obj.getClass().getName() === "java.lang.Integer") {
-                return obj.intValue();
-            } else if (obj.getClass().getName() === "java.lang.Boolean") {
-                return obj.booleanValue();
-            } else if (obj.getClass().getName() === "java.lang.Long") {
-                return obj.longValue();
-            } else if (obj.getClass().getName() === "java.lang.Double") {
-                return obj.doubleValue();
-            } else if (obj.getClass().getName() === "java.lang.Float") {
-                return obj.floatValue();
-            } else if (obj.getClass().getName() === "java.lang.Short") {
-                return obj.shortValue();
-            } else if (obj.getClass().getName() === "java.lang.Byte") {
-                return obj.byteValue();
-            } else if (obj.getClass().getName() === "java.lang.Character") {
-                return obj.charValue();
-            } else if (obj.getClass().getName() === "java.lang.Void") {
-                return "void";
-            } else if (obj.getClass().getName() === "java.lang.Object") {
-                return JSON.stringify(obj, null, 4);
-            } else if (obj.getClass().getName() === "java.lang.Class") {
-                return obj.getName();
-            } else if (obj.getClass().getName() === "java.lang.Throwable") {
-                return obj.toString();
-            } else if (obj.getClass().getName() === "java.lang.Enum") {
-                return obj.toString();
-            } else if (obj.getClass().getName().startsWith("android.")) {
-                return JSON.stringify(obj.toString(), null, 4);
-            } else if (obj.getClass().getName().startsWith("java.")) {
-                return JSON.stringify(obj.toString(), null, 4);
-            } else if (obj.getClass().getName().startsWith("javax.")) {
-                return JSON.stringify(obj.toString(), null, 4);
-            } else if (obj.getClass().getName().startsWith("androidx.")) {
-                return JSON.stringify(obj.toString(), null, 4);
-            } else if (obj.getClass().getName().startsWith("kotlin.")) {
-                return JSON.stringify(obj.toString(), null, 4);
-            } else if (obj.getClass().getName().startsWith("kotlinx.")) {
-                return JSON.stringify(obj.toString(), null, 4);
-            } else if (obj.getClass().getName().startsWith("sun.")) {
-                return JSON.stringify(obj.toString(), null, 4);
-            } else if (obj.getClass().getName().startsWith("org.apache.*")) {
-                return JSON.stringify(obj.toString(), null, 4);
-            } else if (obj.getClass().getName().startsWith("org.eclipse.*")) {
-                return JSON.stringify(obj.toString(), null, 4);
-            } else if (obj.getClass().getName().startsWith("jdk.*")) {
+            switch (obj.getClass().getName()) {
+                case "java.lang.String":
+                    return obj.toString();
+                case "java.lang.Integer":
+                    return obj.intValue();
+                case "java.lang.Boolean":
+                    return obj.booleanValue();
+                case "java.lang.Long":
+                    return obj.longValue();
+                case "java.lang.Double":
+                    return obj.doubleValue();
+                case "java.lang.Float":
+                    return obj.floatValue();
+                case "java.lang.Short":
+                    return obj.shortValue();
+                case "java.lang.Byte":
+                    return obj.byteValue();
+                case "java.lang.Character":
+                    return obj.charValue();
+                case "java.lang.Void":
+                    return "void";
+                case "java.lang.Object":
+                    return JSON.stringify(obj, null, 4);
+                case "java.lang.Class":
+                    return obj.getName();
+                case "java.lang.Throwable":
+                case "java.lang.Enum":
+                    return obj.toString();
+                default:
+                    break;
+            }
+            // 处理 startsWith 的情况
+            const className = obj.getClass().getName();
+            if (className.startsWith("android.") ||
+                className.startsWith("java.") ||
+                className.startsWith("javax.") ||
+                className.startsWith("androidx.") ||
+                className.startsWith("kotlin.") ||
+                className.startsWith("kotlinx.") ||
+                className.startsWith("sun.") ||
+                className.startsWith("org.apache.") ||
+                className.startsWith("org.eclipse.") ||
+                className.startsWith("jdk.")) {
                 return JSON.stringify(obj.toString(), null, 4);
             }
+            
         }
         
         var fields = objClass.getDeclaredFields();
