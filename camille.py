@@ -174,6 +174,7 @@ def frida_hook(device_info, app_name, use_module,
             def stop(signum, frame):
                 print_msg('You have stoped hook.')
                 session.detach()
+                print("detach success")
                 if execl_file:
                     global execl_data
                     write_xlsx(execl_data, execl_file)
