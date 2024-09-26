@@ -804,20 +804,20 @@ function cryptoHook() {
     var action = '加密算法';
 
     hook('javax.crypto.Cipher', [
-        {'methodName': 'doFinal', 'action': action, 'messages': '加密算法'},
-        {'methodName': 'update', 'action': action, 'messages': '加密算法'},
+        {'methodName': 'doFinal', 'action': action, 'messages': '执行加密/解密操作'},
+        {'methodName': 'update', 'action': action, 'messages': '执行加密/解密的更新操作(例如CBC模式)'},
     ]);
     hook('javax.crypto.Mac', [
-        {'methodName': 'doFinal', 'action': action, 'messages': '加密算法'},
-        // {'methodName': 'init', 'action': action, 'messages': '加密算法'},
+        {'methodName': 'doFinal', 'action': action, 'messages': '计算MAC(消息验证代码)'},
+        {'methodName': 'update', 'action': action, 'messages': '增加MAC(消息验证代码)计算的输入'},
     ]);
     hook('android.util.Base64', [
-        {'methodName': 'encode', 'action': action, 'messages': '加密算法'},
-        {'methodName': 'decode', 'action': action, 'messages': '加密算法'},
+        {'methodName': 'encode', 'action': action, 'messages': 'Base64编码'},
+        {'methodName': 'decode', 'action': action, 'messages': 'Base64解码'},
     ]);
     hook('java.security.MessageDigest', [
-        {'methodName': 'update', 'action': action, 'messages': '加密算法'},
-        {'methodName': 'digest', 'action': action, 'messages': '加密算法'},
+        {'methodName': 'update', 'action': action, 'messages': '计算摘要'},
+        {'methodName': 'digest', 'action': action, 'messages': '使用给定输入更新摘要'},
     ]);
     // hook('javax.crypto.spec.SecretKeySpec', [
     //     {'methodName': 'doFinal', 'action': action, 'messages': '加密算法'},
@@ -829,11 +829,11 @@ function cryptoHook() {
     // hook('java.security.KeyFactory', [
     //     {'methodName': 'getInstance', 'action': action, 'messages': '加密算法'},
     // ]);
-    hook('java.security.spec.EncodedKeySpec', [
-        {'methodName': 'getEncoded', 'action': action, 'messages': '加密算法'},
-    ]);
+    // hook('java.security.spec.EncodedKeySpec', [
+        // {'methodName': 'getEncoded', 'action': action, 'messages': '创建编码后的密钥'},
+    // ]);
     // hook('java.security.cert.CertificateFactory', [
-    //     {'methodName': 'generateCertificate', 'action': action, 'messages': '加密算法'},
+    //     {'methodName': 'generateCertificate', 'action': action, 'messages': '生成证书'},
     // ]);
 }
 
