@@ -1,4 +1,4 @@
-from utlis import print_msg, write_xlsx, resource_path
+from utlis import print_msg, write_xlsx, write_json, resource_path
 from utlis.simulate_click import SimulateClick
 from utlis.device import get_frida_device
 from multiprocessing import Process
@@ -177,6 +177,7 @@ def frida_hook(device_info, app_name, use_module,
                 print("detach success")
                 if execl_file:
                     global execl_data
+                    write_json(execl_data, execl_file.replace(".xls", ".json"))
                     write_xlsx(execl_data, execl_file)
                 exit()
 

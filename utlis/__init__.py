@@ -2,6 +2,7 @@ import time
 import xlwt
 import sys
 import os
+import json
 
 
 def now():
@@ -19,6 +20,16 @@ def print_msg(msg):
 
     print("[*] {now} {msg}".format(now=now(), msg=str(msg)))
 
+def write_json(data, file_name):
+    """将结果写入json
+
+    :param data: 调用数据
+    :param file_name: 导出文件名
+    :return:
+    """
+    with open(file_name, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+    
 
 def write_xlsx(data, file_name):
     """将结果写入xlsx
